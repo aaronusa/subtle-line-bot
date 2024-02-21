@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 from utility.tcp_helper import tcp_client
 from utility.open_ai_helper import openApi
+from utility.gemini_helper import calling_gemini_api
 from config.config import line_config
 
 # v3
@@ -46,10 +47,11 @@ def linebot_server():
 
 
 def linebot_push_server():
-    msg = '誒胖臉'
-    user_id = 'Uafab14d3f48e0865aac0959d004cda9a'
+    data = request.get_json()
+    msg = data['message']
+    user_id = data['user_id']
     x_line_uuid = str(uuid.uuid4()).upper()
-    print(x_line_uuid)
+    print(data)
     try:
         url = 'https://api.line.me/v2/bot/message/push'
         headers = {
@@ -84,12 +86,13 @@ def response_message(event):
 
         tcp_string = f'LQ,{current_time},{user_id}, tommy, {msg}'
         tcp_response = tcp_client(tcp_string)
-        gpt_response = openApi(tcp_response['message'])
-        print(gpt_response)
+        # ai_response = openApi(tcp_response['message'])
+        ai_response = calling_gemini_api(tcp_response['message'])
+
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=tcp_response['message'])]
+                messages=[TextMessage(text=ai_response)]
             )
         )

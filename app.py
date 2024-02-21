@@ -10,4 +10,4 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 config_route(app)
 
 
-app.run(port=8000, debug=True)
+app.run(port=5002, debug=True)
