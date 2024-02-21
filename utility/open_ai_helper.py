@@ -9,7 +9,7 @@ def openApi(prompt):
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": '房仲角色 '+prompt}
+                {"role": "system", "content": '房仲角色 ' + prompt}
             ]
         )
         gpt_response = completion.choices[0].message.content

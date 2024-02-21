@@ -1,4 +1,3 @@
-import json
 import requests
 
 GEMINI_API_KEY = 'AIzaSyCd_7GVAL6h9Ra_N4lUle75hxxJyE9-TyY'
@@ -14,7 +13,6 @@ def calling_gemini_api(content):
     }
 
     try:
-        # url = f'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={GEMINI_API_KEY}'
         url = f'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={GEMINI_API_KEY}'
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, headers=headers, json=data)

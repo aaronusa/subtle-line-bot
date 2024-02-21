@@ -7,6 +7,7 @@ from datetime import datetime
 from utility.tcp_helper import tcp_client
 from utility.open_ai_helper import openApi
 from utility.gemini_helper import calling_gemini_api
+from utility.tws import twcc_generate
 from config.config import line_config
 
 # v3
@@ -32,6 +33,7 @@ from linebot.v3 import (
 
 access_token = line_config['access_token']
 handler = WebhookHandler(line_config['channel_secret'])
+configuration = Configuration(access_token=access_token)
 
 
 def linebot_server():
@@ -78,15 +80,19 @@ def linebot_push_server():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def response_message(event):
-    configuration = Configuration(access_token=access_token)
     with ApiClient(configuration) as api_client:
         current_time = datetime.now()
         msg = event.message.text
         user_id = event.source.user_id
 
-        tcp_string = f'LQ,{current_time},{user_id}, tommy, {msg}'
+        user_info = get_name_by_lineid(user_id)
+
+        nick_name = user_info['displayName']
+
+        tcp_string = f'LQ,{current_time},{user_id}, {nick_name}, {msg}'
         tcp_response = tcp_client(tcp_string)
         # ai_response = openApi(tcp_response['message'])
+        # ai_response = twcc_generate(tcp_response['message'])
         ai_response = calling_gemini_api(tcp_response['message'])
 
         line_bot_api = MessagingApi(api_client)
@@ -96,3 +102,18 @@ def response_message(event):
                 messages=[TextMessage(text=ai_response)]
             )
         )
+
+
+def get_name_by_lineid(user_id):
+    url = f'https://api.line.me/v2/bot/profile/{user_id}'
+    try:
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {access_token}',
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            user_info = response.json()
+            return (user_info)
+    except Exception as e:
+        print("Exception when calling MessagingApi->reply_message: %s\n" % e)
