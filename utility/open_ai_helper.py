@@ -5,13 +5,16 @@ client = OpenAI(api_key=open_api_config['api_key'])
 
 
 def openApi(prompt):
+    print(prompt)
     try:
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": '房仲角色 ' + prompt}
-            ]
+                {"role": "user", "content": '房仲角色，幽默語氣，繁體中文： ' + prompt}
+            ],
+            max_tokens=100,
         )
+
         gpt_response = completion.choices[0].message.content
 
         return gpt_response

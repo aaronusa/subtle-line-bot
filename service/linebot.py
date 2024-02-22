@@ -53,7 +53,6 @@ def linebot_push_server():
     msg = data['message']
     user_id = data['user_id']
     x_line_uuid = str(uuid.uuid4()).upper()
-    print(data)
     try:
         url = 'https://api.line.me/v2/bot/message/push'
         headers = {
@@ -79,32 +78,34 @@ def linebot_push_server():
 
 
 @handler.add(MessageEvent, message=TextMessageContent)
-def response_message(event):
+def line_reply_message(event):
     with ApiClient(configuration) as api_client:
         current_time = datetime.now()
         msg = event.message.text
         user_id = event.source.user_id
 
-        user_info = get_name_by_lineid(user_id)
+        user_info = _get_line_info_by_id(user_id)
 
         nick_name = user_info['displayName']
 
         tcp_string = f'LQ,{current_time},{user_id}, {nick_name}, {msg}'
-        tcp_response = tcp_client(tcp_string)
-        # ai_response = openApi(tcp_response['message'])
+        # tcp_response = tcp_client(tcp_string)
+        ai_response = openApi(msg)
         # ai_response = twcc_generate(tcp_response['message'])
-        ai_response = calling_gemini_api(tcp_response['message'])
-
-        line_bot_api = MessagingApi(api_client)
-        line_bot_api.reply_message_with_http_info(
-            ReplyMessageRequest(
-                reply_token=event.reply_token,
-                messages=[TextMessage(text=ai_response)]
+        # ai_response = calling_gemini_api(tcp_response['message'])
+        try:
+            line_bot_api = MessagingApi(api_client)
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text=ai_response)]
+                )
             )
-        )
+        except Exception as e:
+            logging("Exception when calling MessagingApi->reply_message: %s\n" % e)
 
 
-def get_name_by_lineid(user_id):
+def _get_line_info_by_id(user_id):
     url = f'https://api.line.me/v2/bot/profile/{user_id}'
     try:
         headers = {
@@ -116,4 +117,4 @@ def get_name_by_lineid(user_id):
             user_info = response.json()
             return (user_info)
     except Exception as e:
-        print("Exception when calling MessagingApi->reply_message: %s\n" % e)
+        logging("Exception when calling MessagingApi->reply_message: %s\n" % e)

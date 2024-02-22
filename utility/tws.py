@@ -2,8 +2,8 @@ import json
 import requests
 
 MODEL_NAME = "ffm-bloomz-7b"
-API_KEY = "092da750-5ba5-4438-aaf6-b905af78dd3c"
-API_URL = "https://55263.afs.twcc.ai/text-generation/api"
+API_KEY = "e34d8382-a2b2-493b-bb00-4e592604ab58"
+API_URL = "https://54132.afs.twcc.ai/text-generation/api"
 
 # parameters
 max_new_tokens = 350
@@ -19,7 +19,7 @@ def twcc_generate(prompt):
         "X-API-Key": API_KEY}
     data = {
         "model": MODEL_NAME,
-        "inputs": prompt,
+        "inputs": '用房仲的語氣說：' + prompt,
         "parameters": {
             "max_new_tokens": max_new_tokens,
             "temperature": temperature,

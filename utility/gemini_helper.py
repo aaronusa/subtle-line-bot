@@ -1,4 +1,5 @@
 import requests
+import logging
 
 GEMINI_API_KEY = 'AIzaSyCd_7GVAL6h9Ra_N4lUle75hxxJyE9-TyY'
 
@@ -21,5 +22,5 @@ def calling_gemini_api(content):
             print(gemini_answer)
             return gemini_answer['candidates'][0]['content']['parts'][0]['text']
     except Exception as e:
-        print('open ai error: ', e)
+        logging('open ai error: ', e)
         return None
