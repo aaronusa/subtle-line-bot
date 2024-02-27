@@ -1,17 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: your-deployment
+  name: subtle-net-gke
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: your-app
+      app: linebot
   template:
     metadata:
       labels:
-        app: your-app
+        app: linebot
     spec:
       containers:
-        - name: pyline
-          image: techsubtle0926/subtle-linebot:02221651
+        - name: linebot-gke
+          image: asia-east1-docker.pkg.dev/subtle-gke/subtle-gke-repo/linebot-gke:latest
+          ports:
+            - containerPort: 5002
+          env:
+            - name: PORT
+              value: "5002"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"

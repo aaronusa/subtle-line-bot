@@ -2,6 +2,7 @@ from flask import request, abort
 import logging
 import requests
 import uuid
+import json
 
 from datetime import datetime
 from utility.tcp_helper import tcp_client
@@ -87,22 +88,27 @@ def line_reply_message(event):
         user_info = _get_line_info_by_id(user_id)
 
         nick_name = user_info['displayName']
-
+        print(user_info, '00000')
         tcp_string = f'LQ,{current_time},{user_id}, {nick_name}, {msg}'
-        # tcp_response = tcp_client(tcp_string)
-        ai_response = openApi(msg)
-        # ai_response = twcc_generate(tcp_response['message'])
-        # ai_response = calling_gemini_api(tcp_response['message'])
-        try:
-            line_bot_api = MessagingApi(api_client)
-            line_bot_api.reply_message_with_http_info(
-                ReplyMessageRequest(
-                    reply_token=event.reply_token,
-                    messages=[TextMessage(text=ai_response)]
+        tcp_response = tcp_client(tcp_string)
+        if (tcp_response['type'] == 'PA'):
+            # line push
+            push_to_line(tcp_response['message'])
+        else:
+            ai_response = openApi(tcp_response['message'])
+            # ai_response = twcc_generate(tcp_response['message'])
+            # ai_response = calling_gemini_api(tcp_response['message'])
+            try:
+                line_bot_api = MessagingApi(api_client)
+                line_bot_api.reply_message_with_http_info(
+                    ReplyMessageRequest(
+                        reply_token=event.reply_token,
+                        messages=[TextMessage(text=ai_response)]
+                    )
                 )
-            )
-        except Exception as e:
-            logging("Exception when calling MessagingApi->reply_message: %s\n" % e)
+            except Exception as e:
+                logging(
+                    "Exception when calling MessagingApi->reply_message: %s\n" % e)
 
 
 def _get_line_info_by_id(user_id):
@@ -118,3 +124,22 @@ def _get_line_info_by_id(user_id):
             return (user_info)
     except Exception as e:
         logging("Exception when calling MessagingApi->reply_message: %s\n" % e)
+
+
+def push_to_line(data):
+    print(data)
+    x_line_uuid = str(uuid.uuid4()).upper()
+    try:
+        url = 'https://api.line.me/v2/bot/message/push'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {access_token}',
+            'X-Line-Retry-Key': x_line_uuid,
+        }
+
+        response = requests.post(
+            url, json=data, headers=headers)
+
+        logging.debug(response)
+    except Exception as e:
+        print("Exception when calling MessagingApi->reply_message: %s\n" % e)

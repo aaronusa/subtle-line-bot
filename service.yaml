@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: linebot-service
+spec:
+  selector:
+    app: linebot
+  ports:
+    - port: 80
+      targetPort: 5002
+  type: LoadBalancer
+  loadBalancerIP: 35.236.148.247

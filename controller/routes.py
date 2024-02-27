@@ -2,6 +2,10 @@ from service.linebot import *
 
 
 def config_route(app):
+    @app.route("/")
+    def root():
+        return {"hello": "hello world"}, 200
+
     @app.route("/hello")
     def products():
         return {"products": {"Message": "Get all products.."}}, 200
