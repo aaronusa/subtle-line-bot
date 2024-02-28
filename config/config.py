@@ -11,5 +11,5 @@ line_config = {
 }
 
 open_api_config = {
-    'api_key': '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'
+    'api_key': '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'
 }
