@@ -1,7 +1,7 @@
 import socket
 import json
 
-tcp_host = '192.168.50.59'
+tcp_host = 'localhost'
 tcp_port = int(8080)
 
 

@@ -9,9 +9,9 @@ def config_route(app):
     @app.route("/callback", methods=['POST'])
     def linebot():
         linebot_server()
-        return 'OK'
+        return 'OK', 200
 
     @app.route("/push", methods=['POST'])
     def linebot_push():
         linebot_push_server()
-        return 'OK'
+        return 'OK', 200
